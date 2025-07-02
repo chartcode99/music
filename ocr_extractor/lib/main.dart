@@ -222,7 +222,10 @@ class _SongListPageState extends State<SongListPage> {
         ),
       ),
     );
+  }
 }
+
+// --- Move MiniPlayerBar and NowPlayingPage to top-level ---
 
 class MiniPlayerBar extends StatelessWidget {
   final SongModel song;
@@ -306,7 +309,7 @@ class NowPlayingPage extends StatefulWidget {
   State<NowPlayingPage> createState() => _NowPlayingPageState();
 }
 
-
+class _NowPlayingPageState extends State<NowPlayingPage> {
   double _progress = 0.0;
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
