@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
-
 void main() {
   runApp(const MusicPlayerApp());
-// ...existing code...
-
+}
 
 class MusicPlayerApp extends StatelessWidget {
   const MusicPlayerApp({super.key});
@@ -25,9 +22,6 @@ class MusicPlayerApp extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class SongListPage extends StatefulWidget {
   const SongListPage({super.key});
@@ -147,7 +141,6 @@ class _SongListPageState extends State<SongListPage> {
     );
   }
 }
-
 
 class MiniPlayerBar extends StatelessWidget {
   final SongModel song;
@@ -298,5 +291,4 @@ class _NowPlayingPageState extends State<NowPlayingPage> {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     return '${twoDigits(d.inMinutes)}:${twoDigits(d.inSeconds % 60)}';
   }
-}
 }
