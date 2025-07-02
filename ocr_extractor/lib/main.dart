@@ -46,19 +46,59 @@ class _SongListPageState extends State<SongListPage> {
   }
 
   Future<void> _requestPermissionAndQuery() async {
-    var status = await Permission.storage.status;
-    if (!status.isGranted) {
-      await Permission.storage.request();
+    bool granted = false;
+    if (await Permission.storage.isGranted) {
+      granted = true;
+    } else if (await Permission.storage.request().isGranted) {
+      granted = true;
+    } else if (await Permission.mediaLibrary.isGranted) {
+      granted = true;
+    } else if (await Permission.mediaLibrary.request().isGranted) {
+      granted = true;
+    } else if (await Permission.audio.isGranted) {
+      granted = true;
+    } else if (await Permission.audio.request().isGranted) {
+      granted = true;
+    } else if (await Permission.photos.isGranted) {
+      granted = true;
+    } else if (await Permission.photos.request().isGranted) {
+      granted = true;
     }
-    List<SongModel> songs = await _audioQuery.querySongs();
-    setState(() {
-      _songs = songs;
-      _loading = false;
-    });
+    if (!granted) {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permission denied. Cannot access music files.')),
+      );
+      return;
+    }
+    try {
+      List<SongModel> songs = await _audioQuery.querySongs();
+      // Filter out songs with null or empty URIs
+      songs = songs.where((s) => s.uri != null && s.uri!.isNotEmpty).toList();
+      setState(() {
+        _songs = songs;
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load songs: $e')),
+      );
+    }
   }
 
   Future<void> _playSong(int index) async {
     final song = _songs[index];
+    if (song.uri == null || song.uri!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('This song cannot be played (no URI).')),
+      );
+      return;
+    }
     try {
       await _audioPlayer.setAudioSource(AudioSource.uri(Uri.parse(song.uri!)));
       await _audioPlayer.play();
@@ -67,9 +107,8 @@ class _SongListPageState extends State<SongListPage> {
         _isPlaying = true;
       });
     } catch (e) {
-      // Handle error (e.g., file not found)
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Cannot play this song.')),
+        SnackBar(content: Text('Cannot play this song: $e')),
       );
       return;
     }
